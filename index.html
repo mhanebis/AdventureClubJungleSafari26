@@ -14,7 +14,6 @@
         }
 
         body {
-            /* Tells the browser to load YOUR custom jungle-bg.jpg file from your images folder */
             background: linear-gradient(rgba(12, 43, 24, 0.1), rgba(12, 43, 24, 0.2)), 
                         url('assets/images/jungle-bg.jpg') no-repeat center center fixed;
             background-size: cover;
@@ -127,8 +126,8 @@
         .science .fact-label { color: #b7810e; }
         .fact-text { font-size: 1rem; line-height: 1.4; color: #3e3e3c; }
 
-        /* Tactile Audio Button & Sound Waves */
-        .audio-btn {
+        /* Tactile Audio & Navigation Buttons */
+        .audio-btn, .quiz-start-btn {
             background-color: #114223;
             color: #fffcf4;
             border: none;
@@ -147,7 +146,7 @@
             margin-bottom: 20px;
         }
 
-        .audio-btn:active {
+        .audio-btn:active, .quiz-start-btn:active, .quiz-choice-btn:active {
             transform: translateY(4px);
             box-shadow: 0 2px 0 #072010, 0 4px 8px rgba(0,0,0,0.2);
         }
@@ -159,6 +158,44 @@
         .wave-bar:nth-child(2) { animation-delay: 0.15s; }
         .wave-bar:nth-child(3) { animation-delay: 0.3s; }
         @keyframes bounceWave { 0% { transform: scaleY(0.3); } 100% { transform: scaleY(1.1); } }
+
+        /* Quiz Specific Styling */
+        .quiz-box {
+            background-color: #fcf6e8;
+            border: 3px solid #ecdcb9;
+            border-radius: 24px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .quiz-q-title {
+            font-family: 'Fredoka One', cursive;
+            color: #0c2b18;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+        .quiz-choice-btn {
+            background-color: #fff;
+            border: 2px solid #e2a826;
+            color: #2b2b2b;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 12px 15px;
+            border-radius: 16px;
+            width: 100%;
+            margin-bottom: 8px;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 0 #cbd3a3, 0 4px 8px rgba(0,0,0,0.05);
+            transition: all 0.1s ease;
+        }
+        .quiz-choice-btn:hover {
+            background-color: #fffbef;
+        }
 
         /* Passport Tracker Panel */
         .passport-tracker-box {
@@ -184,7 +221,6 @@
             text-decoration: none;
         }
         
-        /* Interactive button styles when unlocked vs static locked states */
         .passport-slot.locked { 
             filter: grayscale(1) opacity(0.3); 
             cursor: not-allowed;
@@ -205,7 +241,7 @@
         .check-badge { position: absolute; bottom: -3px; right: -3px; background: #04844b; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 0.65rem; display: none; justify-content: center; align-items: center; font-weight: bold; }
         .passport-slot.unlocked .check-badge { display: flex; }
 
-        /* Return Home Map Footnotes Button layout element style */
+        /* Return Home Map Footnotes Layout */
         .home-nav-footer {
             margin-top: 15px;
             font-size: 0.9rem;
@@ -217,7 +253,7 @@
         }
         .home-nav-footer a:hover { text-decoration: underline; }
 
-        /* Home Page Spinning Compass Configuration */
+        /* Home Page Elements */
         .welcome-compass { font-size: 4.5rem; margin: 10px 0; display: inline-block; animation: spinCompass 5s linear infinite; }
         @keyframes spinCompass { 0% { transform: rotate(0deg); } 50% { transform: rotate(180deg); } 100% { transform: rotate(360deg); } }
         .welcome-title { font-family: 'Fredoka One', cursive; color: #0c2b18; font-size: 1.9rem; margin-bottom: 8px; }
@@ -255,6 +291,40 @@
             riverdolphin: { name: "River Dolphins", role: "Freshwater Swimmer", emoji: "🐬", wild: "We are a magical pink color! When the big tropical rains flood the jungle, the river rises so high that we can actually swim right between the trunks of the flooded trees to chase fish.", sci: "Researchers use underwater AI microphones to listen to our clicks and whistles so they can map our river highways!" }
         };
 
+        // Quiz Question Dataset 
+        const quizQuestions = [
+            {
+                question: "Pick your favorite jungle snack! 🍌",
+                choices: [
+                    { text: "Sweet bananas & crunchy nuts", key: "monkey" },
+                    { text: "Juicy tropical berries", key: "toucan" },
+                    { text: "Fresh, yummy river fish", key: "riverdolphin" },
+                    { text: "A big, fancy jungle dinner", key: "leopard" }
+                ]
+            },
+            {
+                question: "What is your best jungle superpower? ✨",
+                choices: [
+                    { text: "Super sticky hands for climbing", key: "treefrog" },
+                    { text: "Stomping out paths & being strong", key: "elephant" },
+                    { text: "Being super quiet and sneaky", key: "leopard" },
+                    { text: "Swinging super fast on vines", key: "monkey" }
+                ]
+            },
+            {
+                question: "Where do you want to hang out? 🗺️",
+                choices: [
+                    { text: "High up in the breezy clouds", key: "toucan" },
+                    { text: "Splashing around in cool rivers", key: "riverdolphin" },
+                    { text: "Hiding in the cozy, wet leaves", key: "treefrog" },
+                    { text: "Walking along the forest floor", key: "elephant" }
+                ]
+            }
+        ];
+
+        let currentQuizIndex = 0;
+        let quizScores = { monkey: 0, leopard: 0, treefrog: 0, toucan: 0, elephant: 0, riverdolphin: 0 };
+
         function renderApplicationCore() {
             const card = document.getElementById('safariCard');
             const urlParams = new URLSearchParams(window.location.search);
@@ -268,11 +338,17 @@
             }
 
             if (!targetKey || !safariData[targetKey]) {
-                // HOME MAP SCENERY LAYOUT
+                // HOME MAP SCENERY LAYOUT WITH QUIZ
                 card.innerHTML = `
                     <div class="welcome-compass">🧭</div>
                     <h2 class="welcome-title">ʻOhana Safari Trail</h2>
-                    <p class="welcome-text">You are on the trail! Search the room to find a secret <strong>Animal Station QR Code</strong> and scan it to unlock their sounds and secrets!</p>
+                    <p class="welcome-text">You are on the trail! Search the room to find a secret <strong>Animal Station QR Code</strong> and scan it to unlock their secrets!</p>
+                    
+                    <div class="quiz-box" id="quizContainer">
+                        <p class="welcome-text" style="font-weight:700; margin-bottom:10px;">Which Jungle Animal Are You? 🤔</p>
+                        <button class="quiz-start-btn" onclick="startSafariQuiz()">Take the Quiz! 🐾</button>
+                    </div>
+
                     <div class="passport-tracker-box" id="passportBox"></div>
                 `;
             } else {
@@ -309,6 +385,69 @@
             if (passport.length === 6) {
                 setTimeout(() => { triggerGrandFinaleAward(); }, 600);
             }
+        }
+
+        /* Quiz Logic Functions */
+        function startSafariQuiz() {
+            currentQuizIndex = 0;
+            quizScores = { monkey: 0, leopard: 0, treefrog: 0, toucan: 0, elephant: 0, riverdolphin: 0 };
+            showQuizQuestion();
+        }
+
+        function showQuizQuestion() {
+            const container = document.getElementById('quizContainer');
+            const currentQ = quizQuestions[currentQuizIndex];
+            
+            let choicesHtml = '';
+            currentQ.choices.forEach(choice => {
+                choicesHtml += `
+                    <button class="quiz-choice-btn" onclick="handleQuizAnswer('${choice.key}')">
+                        <span>🎯</span> ${choice.text}
+                    </button>
+                `;
+            });
+
+            container.innerHTML = `
+                <div class="quiz-q-title">Question ${currentQuizIndex + 1} of 3</div>
+                <p class="welcome-text" style="font-weight:700; color:#114223;">${currentQ.question}</p>
+                <div>${choicesHtml}</div>
+            `;
+        }
+
+        function handleQuizAnswer(animalKey) {
+            quizScores[animalKey]++;
+            currentQuizIndex++;
+
+            if (currentQuizIndex < quizQuestions.length) {
+                showQuizQuestion();
+            } else {
+                showQuizResult();
+            }
+        }
+
+        function showQuizResult() {
+            const container = document.getElementById('quizContainer');
+            
+            // Find animal with the highest score
+            let winningAnimalKey = 'monkey'; 
+            let maxScore = -1;
+            
+            Object.keys(quizScores).forEach(key => {
+                if (quizScores[key] > maxScore) {
+                    maxScore = quizScores[key];
+                    winningAnimalKey = key;
+                }
+            });
+
+            const winner = safariData[winningAnimalKey];
+
+            container.innerHTML = `
+                <div class="quiz-q-title" style="color:#04844b;">Match Found! 🎉</div>
+                <div style="font-size: 3.5rem; margin: 10px 0;">${winner.emoji}</div>
+                <p class="welcome-text" style="font-weight:700; font-size:1.2rem; color:#0c2b18;">You are ${winner.name}!</p>
+                <p class="welcome-text" style="font-size:0.95rem;">You match perfectly with the ${winner.role.toLowerCase()}! Can you go find their station QR code?</p>
+                <button class="quiz-start-btn" style="background-color:#0070d2; box-shadow: 0 6px 0 #004b8d;" onclick="startSafariQuiz()">Play Again 🔄</button>
+            `;
         }
 
         function buildStickerPassportRow(passport) {

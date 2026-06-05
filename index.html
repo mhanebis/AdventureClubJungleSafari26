@@ -14,9 +14,9 @@
         }
 
         body {
-            /* Pulls a beautiful, premium cartoon jungle landscape instantly from a safe web link */
-            background: linear-gradient(rgba(12, 43, 24, 0.15), rgba(12, 43, 24, 0.35)), 
-                        url('https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=1200&auto=format&fit=crop') no-repeat center center fixed;
+            /* Tells the browser to load YOUR custom jungle-bg.jpg file from your images folder */
+            background: linear-gradient(rgba(12, 43, 24, 0.1), rgba(12, 43, 24, 0.2)), 
+                        url('assets/images/jungle-bg.jpg') no-repeat center center fixed;
             background-size: cover;
             color: #2b2b2b;
             font-family: 'Nunito', sans-serif;
@@ -154,4 +154,215 @@
 
         .sound-waves { display: none; align-items: center; gap: 3px; height: 18px; }
         .audio-btn.playing .sound-waves { display: inline-flex; }
-        .
+        .audio-btn.playing .static-speaker { display: none; }
+        .wave-bar { width: 3px; height: 100%; background-color: #fffcf4; border-radius: 3px; animation: bounceWave 0.6s ease-in-out infinite alternate; }
+        .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes bounceWave { 0% { transform: scaleY(0.3); } 100% { transform: scaleY(1.1); } }
+
+        /* Passport Tracker Panel */
+        .passport-tracker-box {
+            border-top: 2px dashed #ecdcb9;
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+
+        .passport-title { font-weight: 700; font-size: 0.85rem; color: #706e6b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .passport-row { display: flex; justify-content: space-between; align-items: center; gap: 5px; }
+        
+        .passport-slot { 
+            width: 44px; 
+            height: 44px; 
+            background: #e8e3d3; 
+            border: 2px solid #cdbfa3; 
+            border-radius: 50%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 1.3rem; 
+            position: relative;
+            text-decoration: none;
+        }
+        
+        /* Interactive button styles when unlocked vs static locked states */
+        .passport-slot.locked { 
+            filter: grayscale(1) opacity(0.3); 
+            cursor: not-allowed;
+        }
+        
+        .passport-slot.unlocked { 
+            background: #fff; 
+            border-color: #04844b; 
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(4, 132, 75, 0.15);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .passport-slot.unlocked:hover {
+            transform: scale(1.15);
+        }
+
+        .check-badge { position: absolute; bottom: -3px; right: -3px; background: #04844b; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 0.65rem; display: none; justify-content: center; align-items: center; font-weight: bold; }
+        .passport-slot.unlocked .check-badge { display: flex; }
+
+        /* Return Home Map Footnotes Button layout element style */
+        .home-nav-footer {
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        .home-nav-footer a {
+            color: #0070d2;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .home-nav-footer a:hover { text-decoration: underline; }
+
+        /* Home Page Spinning Compass Configuration */
+        .welcome-compass { font-size: 4.5rem; margin: 10px 0; display: inline-block; animation: spinCompass 5s linear infinite; }
+        @keyframes spinCompass { 0% { transform: rotate(0deg); } 50% { transform: rotate(180deg); } 100% { transform: rotate(360deg); } }
+        .welcome-title { font-family: 'Fredoka One', cursive; color: #0c2b18; font-size: 1.9rem; margin-bottom: 8px; }
+        .welcome-text { font-size: 1.05rem; line-height: 1.4; color: #514f4d; margin-bottom: 15px; }
+
+        /* Confetti Overlay Setup */
+        .award-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(12,43,24,0.95); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
+        .confetti-piece { position: absolute; width: 12px; height: 12px; background: #e2a826; top: -20px; border-radius: 50%; animation: fall linear infinite; }
+        @keyframes fall { to { transform: translateY(105vh); } }
+    </style>
+</head>
+<body>
+
+    <div class="safari-card" id="safariCard">
+        <div>Loading Safari Deck... 🔍</div>
+    </div>
+
+    <div class="award-overlay" id="awardOverlay" onclick="this.style.display='none'">
+        <div class="safari-card" style="border-color:#04844b;">
+            <div style="font-size:5rem;">🏆</div>
+            <h1 style="color:#04844b;">Master Explorer!</h1>
+            <p class="welcome-text">Incredible tracking! You successfully found all 6 animals across the jungle trail!</p>
+            <p class="welcome-text" style="font-weight:700; color:#0c2b18;">Show this screen to your Safari Leader to collect your official prize! 🏅</p>
+        </div>
+    </div>
+
+    <script>
+        // Core Structured Safari Dataset
+        const safariData = {
+            monkey: { name: "The Monkey", role: "Canopy Swinger", emoji: "🐒", wild: "I love swinging through the high jungle trees. My tail is so strong it acts like a third hand to hold onto branches while I search for sweet bananas and crunchy nuts to snack on.", sci: "Wildlife researchers use AI motion-tracking cameras to study how my monkey family moves through the treetops!" },
+            leopard: { name: "The Leopard", role: "Master of Stealth", emoji: "🐆", wild: "My beautiful rosette spots are my secret jungle camouflage that helps me blend right into the shadows of the leaves. I am an amazing climber, and I even carry my dinner all the way up into the tree branches.", sci: "Scientists use smart AI camera traps to recognize my unique spot patterns so they can protect my family!" },
+            treefrog: { name: "The Tree Frog", role: "Leaf Climber", emoji: "🐸", wild: "I live right in the middle of the wet, rainy jungle plants. My bright orange toes are super sticky like tape, which keeps me from slipping off smooth leaves when a big tropical storm hits.", sci: "Scientists use AI sound sensors in the rainforest to listen to my loud nighttime croaks and make sure our waters are clean!" },
+            toucan: { name: "The Toucan", role: "Treetop Aviator", emoji: "🦜", wild: "I love living in the breeziest treetops of the rainforest. My giant, colorful beak looks heavy, but it is actually super light and acts like a long pair of tweezers to reach juicy jungle berries hiding on the skinniest twigs.", sci: "Conservation teams use AI satellite imagery to watch the fruit trees in the jungle and ensure my bird family always has food!" },
+            elephant: { name: "The Elephant", role: "Jungle Trailblazer", emoji: "🐘", wild: "I use my massive body to stomp out walking paths through the thick, tangled jungle bushes so other animals can travel safely. When the jungle gets super hot, I splash cool river mud all over my back to act like a giant squishy sunscreen!", sci: "Conservation teams use AI satellite tracking to safely watch over my herd's massive walking trails and protect our forest homes!" },
+            riverdolphin: { name: "River Dolphins", role: "Freshwater Swimmer", emoji: "🐬", wild: "We are a magical pink color! When the big tropical rains flood the jungle, the river rises so high that we can actually swim right between the trunks of the flooded trees to chase fish.", sci: "Researchers use underwater AI microphones to listen to our clicks and whistles so they can map our river highways!" }
+        };
+
+        function renderApplicationCore() {
+            const card = document.getElementById('safariCard');
+            const urlParams = new URLSearchParams(window.location.search);
+            const rawAnimal = urlParams.get('animal');
+            const targetKey = rawAnimal ? rawAnimal.toLowerCase().trim() : null;
+
+            let passport = JSON.parse(localStorage.getItem('sf_passport')) || [];
+            if (targetKey && safariData[targetKey] && !passport.includes(targetKey)) {
+                passport.push(targetKey);
+                localStorage.setItem('sf_passport', JSON.stringify(passport));
+            }
+
+            if (!targetKey || !safariData[targetKey]) {
+                // HOME MAP SCENERY LAYOUT
+                card.innerHTML = `
+                    <div class="welcome-compass">🧭</div>
+                    <h2 class="welcome-title">ʻOhana Safari Trail</h2>
+                    <p class="welcome-text">You are on the trail! Search the room to find a secret <strong>Animal Station QR Code</strong> and scan it to unlock their sounds and secrets!</p>
+                    <div class="passport-tracker-box" id="passportBox"></div>
+                `;
+            } else {
+                // INDIVIDUAL ANIMAL EXPLORER LAYOUT
+                const item = safariData[targetKey];
+                card.innerHTML = `
+                    <div class="role-badge">${item.role}</div>
+                    <div class="medallion-container">
+                        <div class="gold-ring">
+                            <img class="character-gif" src="assets/images/${targetKey}.gif" alt="${item.name}" onerror="this.style.display='none';">
+                        </div>
+                        <div class="floating-emoji">${item.emoji}</div>
+                    </div>
+                    <h1>${item.name}</h1>
+                    <div>
+                        <div class="fact-panel wildlife"><div class="fact-label">🌳 Jungle Life</div><div class="fact-text">${item.wild}</div></div>
+                        <div class="fact-panel science"><div class="fact-label">🤖 AI Discovery</div><div class="fact-text">${item.sci}</div></div>
+                    </div>
+                    <button class="audio-btn" id="audioBtn" onclick="processVoiceStream('${targetKey}')">
+                        <span class="static-speaker">🔊</span>
+                        <div class="sound-waves"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
+                        <span>Hear My Story!</span>
+                    </button>
+                    <div class="passport-tracker-box" id="passportBox"></div>
+                    <div class="home-nav-footer">
+                        <a href="index.html">← Back to Main Trail Map</a>
+                    </div>
+                    <audio id="audioCore" src="assets/audio/${targetKey}.mp3"></audio>
+                `;
+            }
+
+            buildStickerPassportRow(passport);
+
+            if (passport.length === 6) {
+                setTimeout(() => { triggerGrandFinaleAward(); }, 600);
+            }
+        }
+
+        function buildStickerPassportRow(passport) {
+            const container = document.getElementById('passportBox');
+            let html = `<div class="passport-title">Your Safari Passport</div><div class="passport-row">`;
+            
+            Object.keys(safariData).forEach(key => {
+                const isUnlocked = passport.includes(key);
+                if (isUnlocked) {
+                    html += `
+                        <a href="?animal=${key}" class="passport-slot unlocked" title="Review ${safariData[key].name}">
+                            ${safariData[key].emoji}
+                            <div class="check-badge">✓</div>
+                        </a>
+                    `;
+                } else {
+                    html += `
+                        <div class="passport-slot locked" title="Locked">
+                            ${safariData[key].emoji}
+                        </div>
+                    `;
+                }
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function processVoiceStream(key) {
+            const sound = document.getElementById('audioCore');
+            const button = document.getElementById('audioBtn');
+            if (sound.paused) {
+                sound.play();
+                button.classList.add('playing');
+                sound.onended = () => button.classList.remove('playing');
+            } else {
+                sound.pause();
+                button.classList.remove('playing');
+            }
+        }
+
+        function triggerGrandFinaleAward() {
+            const overlay = document.getElementById('awardOverlay');
+            overlay.style.display = 'flex';
+            for (let i = 0; i < 40; i++) {
+                const conf = document.createElement('div');
+                conf.classList.add('confetti-piece');
+                conf.style.left = `${Math.random() * 100}vw`;
+                conf.style.backgroundColor = ["#0070d2", "#e2a826", "#04844b"][Math.floor(Math.random() * 3)];
+                conf.style.animationDuration = `${Math.random() * 2 + 2}s`;
+                overlay.appendChild(conf);
+            }
+        }
+
+        window.onload = renderApplicationCore;
+    </script>
+</body>
+</html>
